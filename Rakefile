@@ -6,10 +6,17 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "flukso4r"
     gem.summary = %Q{A Ruby Library for the Flukso Webservice}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.description = %Q{This gem provides a library for the Flukso API. See http://flukso.net for more information.}
     gem.email = "md@gonium.net"
     gem.homepage = "http://gonium.net/md/flukso4r"
     gem.authors = ["Mathias Dalheimer"]
+    spec.bindir = 'bin'
+    spec.executables = ['bin/flukso_query']
+    spec.default_executable = 'bin/flukso_query'
+    gem.files = FileList["[A-Z]*", "{bin,lib,test}/**/*"]
+     
+    gem.add_dependency('oauth', '~> 0.3.6')
+    gem.add_dependency('httparty', '~> 0.4.3')
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
@@ -39,7 +46,6 @@ rescue LoadError
 end
 
 task :test => :check_dependencies
-
 task :default => :test
 
 require 'rake/rdoctask'
