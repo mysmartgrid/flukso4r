@@ -10,9 +10,9 @@ begin
     gem.email = "md@gonium.net"
     gem.homepage = "http://gonium.net/md/flukso4r"
     gem.authors = ["Mathias Dalheimer"]
-    spec.bindir = 'bin'
-    spec.executables = ['bin/flukso_query']
-    spec.default_executable = 'bin/flukso_query'
+    gem.bindir = 'bin'
+    gem.executables = ['bin/flukso_query']
+    gem.default_executable = 'bin/flukso_query'
     gem.files = FileList["[A-Z]*", "{bin,lib,test}/**/*"]
      
     gem.add_dependency('oauth', '~> 0.3.6')
