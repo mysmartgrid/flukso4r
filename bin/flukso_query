@@ -1,0 +1,129 @@
+#!/usr/bin/env ruby
+###
+## 
+# flukso4r: A Ruby library for Flukso 
+# Copyright (C) 2010 Mathias Dalheimer (md@gonium.net)
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+##
+###
+
+# Read the flukso4r location 
+libpath=File.join(File.dirname(__FILE__), '..', 'lib')
+$:.unshift << libpath 
+#puts "Using libraty path #{$:.join(":")}" 
+
+require 'flukso'
+require 'optparse'
+require 'ostruct'
+
+###
+## Commandline parser
+#
+class Optparser
+  CODES = %w[iso-2022-jp shift_jis euc-jp utf8 binary]
+  CODE_ALIASES = { "jis" => "iso-2022-jp", "sjis" => "shift_jis" }
+  #
+  # Return a structure describing the options.
+  #
+  def self.parse(args)
+    # The options specified on the command line will be collected in *options*.
+    # We set default values here.
+    options = OpenStruct.new
+    options.inplace = false
+    options.encoding = "utf8"
+    options.verbose = false
+    opts = OptionParser.new do |opts|
+      opts.banner = "Usage: #{$0} [options]"
+      opts.separator ""
+      opts.separator "Specific options:"
+      opts.on("-t", "--timerange VALUE", "The time range you want to query. Valid queries are: {hour, day, month, year}") do |timerange|
+        options.timerange = timerange 
+      end
+      opts.on("-u", "--unit VALUE", "The unit you want to query. Valid queries are: {watt, kwh, eur, aud}") do |unit|
+        options.unit = unit 
+      end
+      opts.on("-u", "--unit VALUE", "The unit you want to query. Valid queries are: {watt, kwh, eur, aud}") do |unit|
+        options.unit = unit 
+      end
+      opts.on("-a", "--alias VALUE", "The device alias you want to query.") do |alias_id|
+        options.alias_id = alias_id
+      end
+      # Boolean switch.
+      opts.on("-v", "--verbose", "Run verbosely") do |v|
+        options.verbose = v
+      end
+      opts.on_tail("-h", "--help", "Show this message") do
+        puts opts
+        exit
+      end
+    end
+    opts.parse!(args)
+    options
+  end
+end
+
+###
+## Script startup
+#
+options = Optparser.parse(ARGV)
+$verbose = options.verbose
+case options.timerange 
+when /^hour$/i
+  range=:hour
+when /^day$/i
+  range=:day
+when /^month$/i
+  range=:month
+when /^year$/i
+  range=:year
+else begin
+  puts "Invalid timerange: #{options.timerange} - see -h for more information."
+  exit(-1);
+end
+end
+case options.unit 
+when /^watt$/i
+  unit=:watt
+when /^kwh$/i
+  unit=:kwh
+when /^eur$/i
+  unit=:eur
+when /^aud$/i
+  unit=:aud
+else begin
+  puts "Invalid unit: #{options.unit} - see -h for more information."
+  exit(-2);
+end
+end
+alias_id=options.alias_id
+
+# No authentication by now.
+auth=Flukso::HTTPAuth.new("", "");
+api=Flukso::API.new(auth);
+query=Flukso::QueryReadings.new(alias_id, range, unit)
+begin
+  readings=query.execute(api);
+rescue Exception => e
+  puts "Query failed: #{e}"
+  exit(-10);
+end
+
+puts "Got Response:"
+readings.each{|reading|
+  puts reading
+}
+
+
