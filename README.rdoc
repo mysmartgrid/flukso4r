@@ -5,12 +5,21 @@ This is the Flukso4R library, available from
 http://gonium.net/md/flukso4r
 
 You can use it to query the Flukso
-webservice. Have a look at the bin/flukso_query script. 
+webservice. Have a look at the bin/flukso_query script. It allows you to
+query the Flukso API and retrieve the latest readings from your Flukso
+meter. A simple call to retrieve the readings of the last day is:
+
+flukso_query -t day -u watt -a <your-sensor-alias>
 
 The code in lib is a cheap knockoff of the twitter ruby gem - many
 thanks to John Nunemaker! You can find the twitter ruby gem here:
 
 http://twitter.rubyforge.org/
+
+== TODO
+
+* There is no authentication implemented currently.
+* Tests of the internals are needed.
 
 == Note on Patches/Pull Requests
  
