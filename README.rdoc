@@ -33,4 +33,4 @@ http://twitter.rubyforge.org/
 
 == Copyright
 
-Copyright (c) 2010 Mathias Dalheimer. See LICENSE for details.
+Copyright (c) 2010 Mathias Dalheimer (md.AT.gonium.net). See LICENSE for details.
