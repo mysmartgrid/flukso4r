@@ -45,7 +45,7 @@ module Flukso
       # The response is an array of arrays. Convert it to UTCReadings.
       retval=Array.new();
       response.each{|reading|
-        current=UTCReading.new(reading[0].to_i, reading[1].to_i);
+        current=UTCReading.new(reading[0], reading[1]);
         retval << current;
       }
       return retval
@@ -56,12 +56,14 @@ module Flukso
     attr_accessor :utc_timestamp, :value
     def initialize(utc_timestamp, value)
       # sanity checks.
-      raise Flukso::General, "Invalid reading timestamp: #{utc_timestamp}" if utc_timestamp.class != Bignum || utc_timestamp < 0;
-      # TODO: Think about behavior when NaN is reported by the
-      # webservice.
+      raise Flukso::General, "Invalid reading timestamp: #{utc_timestamp}" if utc_timestamp < 0; 
       #raise Flukso::General, "Invalid reading value: #{value}" if value.class != Fixnum || value < 0;
-      @utc_timestamp = utc_timestamp;
-      @value = value
+      @utc_timestamp = utc_timestamp.to_i;
+      if value =~ /^nan$/i
+        @value=0.0/0.0  # Workaround: Ruby does not allow to assign NaN directly.
+      else
+        @value = value
+      end
     end
     def to_s
       return "#{@utc_timestamp} -> #{@value}"
