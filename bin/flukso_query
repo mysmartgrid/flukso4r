@@ -49,11 +49,8 @@ class Optparser
       opts.banner = "Usage: #{$0} [options]"
       opts.separator ""
       opts.separator "Specific options:"
-      opts.on("-t", "--timerange VALUE", "The time range you want to query. Valid queries are: {hour, day, month, year}") do |timerange|
+      opts.on("-t", "--timerange VALUE", "The time range you want to query. Valid queries are: {hour, day, month, year, night}") do |timerange|
         options.timerange = timerange 
-      end
-      opts.on("-u", "--unit VALUE", "The unit you want to query. Valid queries are: {watt, kwh, eur, aud}") do |unit|
-        options.unit = unit 
       end
       opts.on("-u", "--unit VALUE", "The unit you want to query. Valid queries are: {watt, kwh, eur, aud}") do |unit|
         options.unit = unit 
@@ -89,6 +86,8 @@ when /^month$/i
   range=:month
 when /^year$/i
   range=:year
+when /^night$/i
+  range=:night
 else begin
   puts "Invalid timerange: #{options.timerange} - see -h for more information."
   exit(-1);

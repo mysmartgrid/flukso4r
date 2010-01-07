@@ -25,7 +25,7 @@ module Flukso
     def initialize(alias_id, timerange=:hour, unit=:watt)
       @alias_id=alias_id;
       # sanity checks.
-      valid_timeranges=[:hour, :day, :month, :year];
+      valid_timeranges=[:hour, :day, :month, :year, :night];
       valid_units=[:watt, :kwh, :eur, :aud];
       raise Flukso::General, "Invalid timerange #{timerange}" unless valid_timeranges.include?(timerange);
       raise Flukso::General, "Invalid unit #{unit}" unless valid_units.include?(unit);
