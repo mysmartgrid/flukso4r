@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{flukso4r}
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mathias Dalheimer"]
@@ -37,8 +37,8 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{A Ruby Library for the Flukso Webservice}
   s.test_files = [
-    "test/test_flukso4r.rb",
-     "test/helper.rb"
+    "test/helper.rb",
+     "test/test_flukso4r.rb"
   ]
 
   if s.respond_to? :specification_version then
