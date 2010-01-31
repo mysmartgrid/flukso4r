@@ -21,7 +21,6 @@ module Flukso
   require 'sqlite3'
   require 'flukso'
 
-  DB_READINGS_NAME="powerreadings"
   DB_SCHEMA=<<-SQL
     create table :::TABLE_NAME::: (
       EPOCHTIME integer primary key,
@@ -41,16 +40,16 @@ SQL
       db = SQLite3::Database.open(filename)
       schema = FluksoDB.fill_template( DB_SCHEMA, { 'TABLE_NAME' => tablename} )
       db.execute_batch(schema)
-      return FluksoDB.new(db);
+      return FluksoDB.new(db, tablename);
     end
     # open an existing database
-    def self.open(filename)
+    def self.open(filename, tablename)
       filename=File.expand_path(filename);
       if not File.exists?(filename)
         raise "Database file #{filename} does not exist."
       end
       db = SQLite3::Database.open( filename)
-      return FluksoDB.new(db);
+      return FluksoDB.new(db, tablename);
     end
     # See: http://freshmeat.net/articles/templates-in-ruby
     # template: Returns a string formed from a template and replacement values
@@ -73,7 +72,8 @@ SQL
     end
     # constuctor: give SQLite::Database object as argument. see class
     # methods.
-    def initialize(db)
+    def initialize(db, tablename)
+      @tablename=tablename
       @db=db;
       @db.results_as_hash = true
     end
@@ -86,7 +86,7 @@ SQL
         raise "Must give a UTCReading instance."
       end
       stmt=<<-SQL
-      INSERT INTO #{DB_READINGS_NAME}
+      INSERT INTO #{@tablename}
       VALUES ('#{reading.utc_timestamp}', '#{reading.value}'); 
       SQL
       @db.execute(stmt)
@@ -94,43 +94,47 @@ SQL
     def find_reading_last_five
       return find_last_reading(5);
     end
+    def find_reading_last
+      return find_last_reading(1)[0];
+    end
     def find_last_reading(amount)
       if not amount.class==Fixnum
         raise "Must provide the number of last readings desired as an Fixnum."
       end
       stmt=<<-SQL
-      SELECT * FROM #{DB_READINGS_NAME}
-      order by epochtime DESC limit #{amount};
-    SQL
-        readings=Array.new
-        @db.execute(stmt) {|row|
-          value=row['VALUE'].to_f;
-          timestamp=Time.at(row['EPOCHTIME'].to_f);
-          reading=UTCReading.new(timestamp, value);
-          readings << reading
-        }
-        if readings.empty?
-          raise ElementNotFoundError
-        end
-        return readings;
+        SELECT * FROM #{@tablename}
+        order by epochtime DESC limit #{amount};
+      SQL
+      #puts "Using statement #{stmt}" if $verbose
+      readings=Array.new
+      @db.execute(stmt) {|row|
+        value=row['VALUE'].to_f;
+        timestamp=Time.at(row['EPOCHTIME'].to_f);
+        reading=UTCReading.new(timestamp, value);
+        readings << reading
+      }
+      if readings.empty?
+        raise ElementNotFoundError
       end
-      def find_reading_by_epochtime(time)
-        stmt=<<-SQL
-      SELECT * FROM #{DB_READINGS_NAME}
-      WHERE epochtime ='#{time}';
-    SQL
-        readings=Array.new
-        @db.execute(stmt) {|row|
-          reading=UTCReading.new(row['TIMESTAMP'].to_i, row['VALUE'].to_i)
-          readings << reading
-        }
-        if readings.empty?
-          raise ElementNotFoundError
-        end
-        return readings[0];
-      end
+      return readings;
     end
-
-    class ElementNotFoundError < RuntimeError
+    def find_reading_by_epochtime(time)
+      stmt=<<-SQL
+        SELECT * FROM #{@tablename}
+        WHERE epochtime ='#{time}';
+      SQL
+      readings=Array.new
+      @db.execute(stmt) {|row|
+        reading=UTCReading.new(row['TIMESTAMP'].to_i, row['VALUE'].to_i)
+        readings << reading
+      }
+      if readings.empty?
+        raise ElementNotFoundError
+      end
+      return readings[0];
     end
   end
+
+  class ElementNotFoundError < RuntimeError
+  end
+end

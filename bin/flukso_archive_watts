@@ -105,11 +105,31 @@ rescue Exception => e
   exit(-10);
 end
 
-# TODO: put it in database
+# Remove NaN elements
+clean_readings = readings.map{|reading|
+  puts "checking #{reading.value} of class #{reading.value.class}"
+  if reading.value.to_f != (0.0/0.0) # not NaN
+    reading;
+  else
+    nil;
+  end
+}.compact
 
-puts "Got Response:"
-readings.each{|reading|
-  puts reading
-}
+if $verbose
+  clean_readings.each{|reading|
+    puts reading
+  }
+end
 
+# TODO: 
+# insert all elements that have a later timestamp than the last reading.
 
+db=Flukso::FluksoDB.open($CONFIG["DB_FILE"], $CONFIG["DB_TABLE_NAME"]);
+begin
+  last=db.find_reading_last();
+  puts "Last reading: #{last}"
+rescue Flukso::ElementNotFoundError => e
+  puts "Empty database - not able to provide last reading."
+end
+
+db.close
