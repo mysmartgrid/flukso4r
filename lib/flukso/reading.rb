@@ -20,37 +20,24 @@
 ###
 
 
-require 'forwardable'
-require 'rubygems'
- 
-gem 'httparty', '~> 0.4.3'
-require 'httparty'
- 
 module Flukso
-  class FluksoError < StandardError
-    attr_reader :data
  
-    def initialize(data)
-      @data = data
-      super
+  class UTCReading
+    attr_accessor :utc_timestamp, :value
+    def initialize(utc_timestamp, value)
+      # sanity checks.
+      raise Flukso::General, "Invalid reading timestamp: #{utc_timestamp}" if utc_timestamp < 0; 
+      #raise Flukso::General, "Invalid reading value: #{value}" if value.class != Fixnum || value < 0;
+      @utc_timestamp = utc_timestamp.to_i;
+      if value =~ /^nan$/i
+        @value=0.0/0.0  # Workaround: Ruby does not allow to assign NaN directly.
+      else
+        @value = value
+      end
+    end
+    def to_s
+      return "#{@utc_timestamp} -> #{@value}"
     end
   end
- 
-  class RateLimitExceeded < FluksoError; end
-  class Unauthorized < FluksoError; end
-  class General < FluksoError; end
- 
-  class Unavailable < StandardError; end
-  class InformFlukso < StandardError; end
-  class NotFound < StandardError; end
 
-  BASE_SENSOR_URL = "http://api.flukso.net/sensor"
 end
- 
-directory = File.expand_path(File.dirname(__FILE__))
- 
-require File.join(directory, 'flukso', 'http_auth')
-require File.join(directory, 'flukso', 'reading')
-require File.join(directory, 'flukso', 'request')
-require File.join(directory, 'flukso', 'api')
-require File.join(directory, 'flukso', 'database')
