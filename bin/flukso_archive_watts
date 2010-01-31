@@ -105,13 +105,17 @@ rescue Exception => e
   exit(-10);
 end
 
-# Remove NaN elements
+# Remove NaN elements - NaN Handling in Ruby sucks.
 clean_readings = readings.map{|reading|
-  puts "checking #{reading.value} of class #{reading.value.class}"
-  if reading.value.to_f != (0.0/0.0) # not NaN
-    reading;
+  #puts "checking #{reading.value} of class #{reading.value.class}"
+  if reading.value.class==Float 
+    if reading.value.nan?
+      nil;
+    else
+      reading
+    end
   else
-    nil;
+    reading;
   end
 }.compact
 
