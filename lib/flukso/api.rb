@@ -52,24 +52,6 @@ module Flukso
     end
   end
 
-  class UTCReading
-    attr_accessor :utc_timestamp, :value
-    def initialize(utc_timestamp, value)
-      # sanity checks.
-      raise Flukso::General, "Invalid reading timestamp: #{utc_timestamp}" if utc_timestamp < 0; 
-      #raise Flukso::General, "Invalid reading value: #{value}" if value.class != Fixnum || value < 0;
-      @utc_timestamp = utc_timestamp.to_i;
-      if value =~ /^nan$/i
-        @value=0.0/0.0  # Workaround: Ruby does not allow to assign NaN directly.
-      else
-        @value = value
-      end
-    end
-    def to_s
-      return "#{@utc_timestamp} -> #{@value}"
-    end
-  end
-
   class API
     extend Forwardable
 
