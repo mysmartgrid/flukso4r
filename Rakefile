@@ -11,7 +11,7 @@ begin
     gem.homepage = "http://gonium.net/md/flukso4r"
     gem.authors = ["Mathias Dalheimer"]
     gem.bindir = 'bin'
-    gem.executables = ['flukso_query']
+    gem.executables = ['flukso_query', 'flukso_archive_watts', 'flukso_create_db']
     gem.default_executable = 'flukso_query'
     gem.files = FileList["[A-Z]*", "{bin,lib,test}/**/*"]
      

@@ -11,6 +11,30 @@ meter. A simple call to retrieve the readings of the last day is:
 
 flukso_query -t day -u watt -a <your-sensor-alias>
 
+In addition, the library includes two scripts that can be used to
+archive your Flukso readings at the highest resolution. The values are
+stored in an sqlite3 database.
+
+First, copy the flukso4rrc template file to a destination of your
+liking:
+
+$ cp etc/flukso4rrc $HOME/.flukso4rrc
+
+Then, edit the file and specify the database file and your API key.
+Please note that the library uses HTTPS to communicate with the Flukso
+webservice, so your API key is not sent unencrypted over the net.
+
+Then, create an empty database:
+
+$ flukso_create_db -c <CONFIG_FILE>
+
+After the DB has been created, you can add new data with the command
+
+$ flukso_archive_watts -c <CONFIG_FILE>
+
+This command will download all values of the last hour and add the new
+ones to the database. It is intended to be run as a cronjob.
+
 The code in lib is a cheap knockoff of the twitter ruby gem - many
 thanks to John Nunemaker! You can find the twitter ruby gem here:
 
@@ -18,7 +42,6 @@ http://twitter.rubyforge.org/
 
 == TODO
 
-* There is no authentication implemented currently.
 * Tests of the internals are needed.
 
 == Note on Patches/Pull Requests

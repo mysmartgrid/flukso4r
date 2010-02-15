@@ -9,11 +9,11 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mathias Dalheimer"]
-  s.date = %q{2010-01-07}
+  s.date = %q{2010-02-15}
   s.default_executable = %q{flukso_query}
   s.description = %q{This gem provides a library for the Flukso API. See http://flukso.net for more information.}
   s.email = %q{md@gonium.net}
-  s.executables = ["flukso_query"]
+  s.executables = ["flukso_query", "flukso_archive_watts", "flukso_create_db"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.rdoc"
@@ -23,10 +23,14 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "bin/flukso_archive_watts",
+     "bin/flukso_create_db",
      "bin/flukso_query",
      "lib/flukso.rb",
      "lib/flukso/api.rb",
+     "lib/flukso/database.rb",
      "lib/flukso/http_auth.rb",
+     "lib/flukso/reading.rb",
      "lib/flukso/request.rb",
      "test/helper.rb",
      "test/test_flukso4r.rb"
@@ -47,11 +51,14 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<httparty>, ["~> 0.4.3"])
+      s.add_runtime_dependency(%q<sqlite3-ruby>, ["~> 1.2.5"])
     else
       s.add_dependency(%q<httparty>, ["~> 0.4.3"])
+      s.add_dependency(%q<sqlite3-ruby>, ["~> 1.2.5"])
     end
   else
     s.add_dependency(%q<httparty>, ["~> 0.4.3"])
+    s.add_dependency(%q<sqlite3-ruby>, ["~> 1.2.5"])
   end
 end
 
