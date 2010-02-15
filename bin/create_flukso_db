@@ -103,5 +103,7 @@ begin
   puts "Success."
 rescue Exception => e
   puts "Failed to initialize db: #{e}"
+  puts "Backtrace:" if $verbose
+  puts e.backtrace if $verbose
 end
 

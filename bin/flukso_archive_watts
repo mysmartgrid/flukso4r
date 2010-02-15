@@ -135,5 +135,6 @@ begin
 rescue Flukso::ElementNotFoundError => e
   puts "Empty database - not able to provide last reading."
 end
-
+insertCount = db.appendNewReadings(clean_readings);
+puts "Added #{insertCount} readings to the database."
 db.close

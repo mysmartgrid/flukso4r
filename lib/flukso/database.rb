@@ -80,6 +80,21 @@ SQL
     def close
       @db.close;
     end
+    # Appends the readings of the provided array to the database.
+    def appendNewReadings(readings)
+      insertCounter=0
+      last_reading=find_reading_last();
+      readings.each{|reading|
+        if reading.utc_timestamp > last_reading.utc_timestamp
+          puts "Appending #{reading}" if $verbose
+          storeReading(reading);
+          insertCounter += 1
+        else
+          puts "Skipping reading at #{reading.utc_timestamp}, already in DB." if $verbose
+        end
+      }
+      return insertCounter
+    end
     def storeReading(reading)
       # TODO: Make this more efficient, recycle insert statements.
       if reading.class != UTCReading
@@ -109,7 +124,9 @@ SQL
       readings=Array.new
       @db.execute(stmt) {|row|
         value=row['VALUE'].to_f;
-        timestamp=Time.at(row['EPOCHTIME'].to_f);
+        #timestamp=Time.at(row['EPOCHTIME'].to_f);
+        timestamp=row['EPOCHTIME'].to_f;
+        #puts "Creating new UTCReading: #{timestamp}, #{value}"
         reading=UTCReading.new(timestamp, value);
         readings << reading
       }
