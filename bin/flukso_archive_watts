@@ -125,9 +125,6 @@ if $verbose
   }
 end
 
-# TODO: 
-# insert all elements that have a later timestamp than the last reading.
-
 db=Flukso::FluksoDB.open($CONFIG["DB_FILE"], $CONFIG["DB_TABLE_NAME"]);
 begin
   last=db.find_reading_last();
@@ -136,5 +133,5 @@ rescue Flukso::ElementNotFoundError => e
   puts "Empty database - not able to provide last reading."
 end
 insertCount = db.appendNewReadings(clean_readings);
-puts "Added #{insertCount} readings to the database."
+puts "Added #{insertCount} new readings to the database."
 db.close

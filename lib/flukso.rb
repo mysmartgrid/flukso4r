@@ -43,8 +43,8 @@ module Flukso
   class Unavailable < StandardError; end
   class InformFlukso < StandardError; end
   class NotFound < StandardError; end
-
-  BASE_SENSOR_URL = "http://api.flukso.net/sensor"
+  # Use only the encrypted endpoint.
+  BASE_SENSOR_URL = "https://api.flukso.net/sensor"
 end
  
 directory = File.expand_path(File.dirname(__FILE__))
