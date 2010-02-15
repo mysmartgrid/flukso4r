@@ -83,9 +83,15 @@ SQL
     # Appends the readings of the provided array to the database.
     def appendNewReadings(readings)
       insertCounter=0
-      last_reading=find_reading_last();
+      last_timestamp=0
+      begin
+        last_reading=find_reading_last();
+        last_timestamp=last_reading.utc_timestamp;
+      rescue Flukso::ElementNotFoundError => e
+        puts "Empty database - not able to provide last reading."
+      end
       readings.each{|reading|
-        if reading.utc_timestamp > last_reading.utc_timestamp
+        if reading.utc_timestamp > last_timestamp
           puts "Appending #{reading}" if $verbose
           storeReading(reading);
           insertCounter += 1
@@ -117,8 +123,8 @@ SQL
         raise "Must provide the number of last readings desired as an Fixnum."
       end
       stmt=<<-SQL
-        SELECT * FROM #{@tablename}
-        order by epochtime DESC limit #{amount};
+      SELECT * FROM #{@tablename}
+      order by epochtime DESC limit #{amount};
       SQL
       #puts "Using statement #{stmt}" if $verbose
       readings=Array.new
@@ -152,6 +158,6 @@ SQL
     end
   end
 
-  class ElementNotFoundError < RuntimeError
-  end
-end
+      class ElementNotFoundError < RuntimeError
+      end
+    end
