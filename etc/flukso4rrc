@@ -1,3 +1,4 @@
-DB_FILE:  "/Users/gonium/tmp/demo_database.sqlite3"
+DB_FILE:  "/tmp/demo_database.sqlite3"
 DB_TABLE_NAME: "UTCReadings"
-ACCESS_KEY: "3f......"
+ACCESS_TOKEN: "3f..."
+SENSOR_ID: "0e...."
