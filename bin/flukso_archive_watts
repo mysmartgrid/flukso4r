@@ -94,10 +94,9 @@ if not File.exists?(dbfile)
 end
 
 
-# No authentication by now.
-auth=Flukso::HTTPAuth.new("", "");
+auth=Flukso::TokenAuth.new($CONFIG["ACCESS_TOKEN"]);
 api=Flukso::API.new(auth);
-query=Flukso::QueryReadings.new($CONFIG["ACCESS_KEY"], :hour, :watt)
+query=Flukso::QueryReadings.new($CONFIG["SENSOR_ID"], :hour, :watt)
 begin
   readings=query.execute(api);
 rescue Exception => e

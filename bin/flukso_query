@@ -55,8 +55,11 @@ class Optparser
       opts.on("-u", "--unit VALUE", "The unit you want to query. Valid queries are: {watt, kwh, eur, aud}") do |unit|
         options.unit = unit 
       end
-      opts.on("-a", "--alias VALUE", "The device alias you want to query.") do |alias_id|
-        options.alias_id = alias_id
+      opts.on("-i", "--sensor-id VALUE", "The sensor ID you want to query.") do |sensor_id|
+        options.sensor_id = sensor_id
+      end
+      opts.on("-a", "--access-token VALUE", "Your access token.") do |access_token|
+        options.access_token = access_token
       end
       # Boolean switch.
       opts.on("-v", "--verbose", "Run verbosely") do |v|
@@ -107,12 +110,12 @@ else begin
   exit(-2);
 end
 end
-alias_id=options.alias_id
+sensor_id=options.sensor_id
+access_token=options.access_token
 
-# No authentication by now.
-auth=Flukso::HTTPAuth.new("", "");
+auth=Flukso::TokenAuth.new(access_token);
 api=Flukso::API.new(auth);
-query=Flukso::QueryReadings.new(alias_id, range, unit)
+query=Flukso::QueryReadings.new(sensor_id, range, unit)
 begin
   readings=query.execute(api);
 rescue Exception => e

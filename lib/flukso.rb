@@ -45,6 +45,7 @@ module Flukso
   class NotFound < StandardError; end
   # Use only the encrypted endpoint.
   BASE_SENSOR_URL = "https://api.flukso.net/sensor"
+  API_VERSION="1.0"
 end
  
 directory = File.expand_path(File.dirname(__FILE__))

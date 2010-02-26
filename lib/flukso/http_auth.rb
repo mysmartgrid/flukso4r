@@ -21,37 +21,57 @@
 
 
 module Flukso
-  class HTTPAuth
+  class TokenAuth
     include HTTParty
     format :plain
 
-    attr_reader :username, :password, :options
+    attr_reader :options
 
-    def initialize(username, password, options={})
-      @username, @password = username, password
-      @options = {:ssl => false}.merge(options)
-      self.class.base_uri "http#{'s' if options[:ssl]}://api.flukso.net"
+    def initialize(access_token)
+      @access_token = access_token
+      #@options = {:ssl => true}.merge(options)
+      self.class.base_uri "#{Flukso::BASE_SENSOR_URL}"
     end
 
+    
     def get(uri, headers={})
-      self.class.get(uri, :headers => headers, :basic_auth => basic_auth)
+      headers=add_auth_header(headers);
+      self.class.get(uri, :headers => headers)
     end
 
     def post(uri, body={}, headers={})
-      self.class.post(uri, :body => body, :headers => headers, :basic_auth => basic_auth)
+      self.class.post(uri, :body => body, :headers => add_auth_header(headers))
     end
 
     def put(uri, body={}, headers={})
-      self.class.put(uri, :body => body, :headers => headers, :basic_auth => basic_auth)
+      self.class.put(uri, :body => body, :headers => add_auth_header(headers))
     end
 
     def delete(uri, body={}, headers={})
-      self.class.delete(uri, :body => body, :headers => headers, :basic_auth => basic_auth)
+      self.class.delete(uri, :body => body, :headers => add_auth_header(headers))
     end
 
     private
-    def basic_auth
-      @basic_auth ||= {:username => @username, :password => @password}
+
+    def add_version_header(headers)
+      if (headers==nil)
+      else
+        headers={"X-Version" => "#{Flukso::API_VERSION}"}.merge(headers);
+      end
+      return headers;
     end
+
+
+    def add_auth_header(headers)
+      if (headers==nil)
+        headers={"X-Version" => "#{Flukso::API_VERSION}"}
+        headers.merge!({"X-Token" => "#{@access_token}"})
+      else
+        headers={"X-Version" => "#{Flukso::API_VERSION}"}.merge(headers);
+        headers={"X-Token" => "#{@access_token}"}.merge(headers);
+      end
+      return headers;
+    end
+
   end
 end
