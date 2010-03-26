@@ -83,14 +83,17 @@ options = Optparser.parse(ARGV)
 $verbose = options.verbose
 $force = options.force
 
-puts "Flukso data export script."
+$stderr.puts "Flukso data export script."
 # check date format parameters.
 timeformat=nil;
 options.timeformat = "utc" unless options.timeformat != nil
+exporter=nil;
 if options.timeformat.upcase == "UTC"
-  timeformat=:utc
+  exporter=Flukso::UTC_Exporter.new();
 elsif options.timeformat.upcase == "LOCAL"
-  timeformat=:local
+  exporter=Flukso::Local_Exporter.new();
+elsif options.timeformat.upcase == "DETAIL"
+  exporter=Flukso::Detail_Exporter.new();
 else 
   puts "You specified an invalid timeformat. Valid formats are 'utc' and 'local'."
   exit (-4)
@@ -134,29 +137,18 @@ if options.starttime != nil
   end
 end
 
-def format_reading_helper(timeformat, reading)
-  if timeformat == :utc 
-    puts "#{reading.utc_timestamp}\t#{reading.value}"
-  elsif timeformat == :local
-    puts "#{Time.at(reading.utc_timestamp)}\t#{reading.value}"
-  end
-end
-
 db=Flukso::FluksoDB.open($CONFIG["DB_FILE"], $CONFIG["DB_TABLE_NAME"]);
+exporter.print_header
 begin
   if select_starttime != nil
     # We need to select the values in the specified timeframe.
     db.each_reading_between(select_starttime, select_endtime) {|reading|
-      format_reading_helper(timeformat, reading)
+      exporter.format_reading(reading);
     }
   else
     # No selection was given. Iterate over all values in the DB.
     db.each_reading{|reading|
-      if timeformat == :utc 
-        puts "#{reading.utc_timestamp}\t#{reading.value}"
-      elsif timeformat == :local
-        puts "#{Time.at(reading.utc_timestamp)}\t#{reading.value}"
-      end
+      exporter.format_reading(reading);
     }
   end
 rescue Flukso::ElementNotFoundError => e
