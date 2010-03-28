@@ -1,0 +1,161 @@
+#!/usr/bin/env ruby
+# This file is part of fluksobot
+# (c) 2009 Mathias Dalheimer, md@gonium.net
+#
+# FluksoBot is free software; you can 
+# redistribute it and/or modify it under the terms of the GNU General Public 
+# License as published by the Free Software Foundation; either version 2 of 
+# the License, or any later version.
+#
+# FluksoBot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with FluksoBot; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+# Read the fluksobot location 
+libpath=File.join(File.dirname(__FILE__), '..', 'lib')
+$:.unshift << libpath 
+#puts "Using libraty path #{$:.join(":")}" 
+
+require 'rubygems'
+require 'optparse'
+require 'ostruct'
+require 'flukso'
+
+###
+## Commandline parser
+#
+class Optparser
+  CODES = %w[iso-2022-jp shift_jis euc-jp utf8 binary]
+  CODE_ALIASES = { "jis" => "iso-2022-jp", "sjis" => "shift_jis" }
+  #
+  # Return a structure describing the options.
+  #
+  def self.parse(args)
+    # The options specified on the command line will be collected in *options*.
+    # We set default values here.
+    options = OpenStruct.new
+    options.inplace = false
+    options.encoding = "utf8"
+    options.verbose = false
+    opts = OptionParser.new do |opts|
+      opts.banner = "Usage: #{$0} [options]"
+      opts.separator ""
+      opts.separator "Specific options:"
+    opts.on("-c", "--config FILE", "The configuration file to use.") do |file|
+      options.config_file = file 
+    end
+    opts.on("-f", "--timeformat {utc|local}", "What format to use for the timestamp.") do |timeformat|
+      options.timeformat=timeformat 
+    end
+    opts.on("-s", "--starttime UTC_TIMESTAMP", "Timestamp of the first reading to export.") do |starttime|
+      options.starttime=starttime 
+    end
+    opts.on("-e", "--endtime UTC_TIMESTAMP", "Timestamp of the last reading to export.") do |endtime|
+      options.endtime=endtime 
+    end
+
+    # Boolean switch.
+    opts.on("-f", "--force", "Ignore warnings") do |f|
+      options.force = f 
+    end
+    opts.on("-v", "--verbose", "Run verbosely") do |v|
+      options.verbose = v
+    end
+    opts.on_tail("-h", "--help", "Show this message") do
+      puts opts
+      exit
+    end
+  end
+  opts.parse!(args)
+  options
+end
+end
+
+###
+## Script startup
+#
+options = Optparser.parse(ARGV)
+$verbose = options.verbose
+$force = options.force
+
+$stderr.puts "Flukso data export script."
+# check date format parameters.
+timeformat=nil;
+options.timeformat = "utc" unless options.timeformat != nil
+exporter=nil;
+if options.timeformat.upcase == "UTC"
+  exporter=Flukso::UTC_Exporter.new();
+elsif options.timeformat.upcase == "LOCAL"
+  exporter=Flukso::Local_Exporter.new();
+elsif options.timeformat.upcase == "DETAIL"
+  exporter=Flukso::Detail_Exporter.new();
+else 
+  puts "You specified an invalid timeformat. Valid formats are 'utc' and 'local'."
+  exit (-4)
+end
+# check config file.
+if options.config_file == nil
+  puts "Please provide a configuration file... (-h for details)."
+  exit(-1);
+end
+if not File.exists?(options.config_file) 
+  puts " Configuration file #{options.config_file} not found - no database configuration available!"
+  exit(-3);
+else
+  $CONFIG=YAML.load_file(options.config_file);
+  puts "Using this configuration:" if $verbose
+  puts "#{$CONFIG}" if $verbose
+  dbfile=$CONFIG['DB_FILE']
+end
+if $verbose
+  puts " Using database file #{dbfile}"
+end
+# check and expand database path.
+if not File.exists?(dbfile) 
+  puts " Database does not exists. Aborting."
+  exit(-2);
+end
+
+# TODO: Rewrite this, it should reflect a pipe pattern...
+
+select_starttime=nil
+select_endtime=nil
+# do we need to select a timerange?
+if options.starttime != nil
+  select_starttime = options.starttime.to_i
+  if options.endtime != nil
+    select_endtime=options.endtime.to_i
+    if select_endtime < select_starttime
+      puts "The end time is earlier than the start time - please check your values."
+      exit(-6);
+    end
+  else
+    puts "You specified a start time to select, but the end time is missing."
+    exit(-5);
+  end
+end
+
+db=Flukso::FluksoDB.open($CONFIG["DB_FILE"], $CONFIG["DB_TABLE_NAME"]);
+exporter.print_header
+begin
+  if select_starttime != nil
+    # We need to select the values in the specified timeframe.
+    db.each_reading_between(select_starttime, select_endtime) {|reading|
+      exporter.format_reading(reading);
+    }
+  else
+    # No selection was given. Iterate over all values in the DB.
+    db.each_reading{|reading|
+      exporter.format_reading(reading);
+    }
+  end
+rescue Flukso::ElementNotFoundError => e
+  puts "Empty database - not able to provide last reading."
+end
+db.close
+

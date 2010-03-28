@@ -118,6 +118,35 @@ SQL
     def find_reading_last
       return find_last_reading(1)[0];
     end
+    # Avoid redundant code. Takes a block and executes it on the query
+    # data. See http://innig.net/software/ruby/closures-in-ruby.rb
+    def helper_yield_results(querystatement, block)
+      @db.execute(querystatement) {|row|
+        value=row['VALUE'].to_f;
+        #timestamp=Time.at(row['EPOCHTIME'].to_f);
+        timestamp=row['EPOCHTIME'].to_f;
+        #puts "Creating new UTCReading: #{timestamp}, #{value}"
+        reading=UTCReading.new(timestamp, value);
+        block.call(reading);
+      }
+    end
+    def each_reading_between(starttime, endtime, &block)
+      stmt=<<-SQL
+      SELECT * FROM #{@tablename}
+      WHERE epochtime >= #{starttime} AND epochtime <= #{endtime}
+      ORDER BY epochtime ASC;
+      SQL
+      #puts "Using statement #{stmt}" if $verbose
+      helper_yield_results(stmt, block);
+    end
+    def each_reading(&block)
+      stmt=<<-SQL
+      SELECT * FROM #{@tablename}
+      order by epochtime ASC;
+      SQL
+      #puts "Using statement #{stmt}" if $verbose
+      helper_yield_results(stmt, block);
+    end
     def find_last_reading(amount)
       if not amount.class==Fixnum
         raise "Must provide the number of last readings desired as an Fixnum."
