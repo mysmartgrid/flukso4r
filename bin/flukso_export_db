@@ -120,6 +120,9 @@ if not File.exists?(dbfile)
   puts " Database does not exists. Aborting."
   exit(-2);
 end
+
+# TODO: Rewrite this, it should reflect a pipe pattern...
+
 select_starttime=nil
 select_endtime=nil
 # do we need to select a timerange?
