@@ -93,9 +93,9 @@ if not File.exists?(dbfile)
   exit(-2);
 end
 
-
+BASE_URL=$CONFIG['BASE_URL']
 auth=Flukso::TokenAuth.new($CONFIG["ACCESS_TOKEN"]);
-api=Flukso::API.new(auth);
+api=Flukso::API.new(auth, BASE_URL);
 query=Flukso::QueryReadings.new($CONFIG["SENSOR_ID"], :hour, :watt)
 begin
   readings=query.execute(api);

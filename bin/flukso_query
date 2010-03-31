@@ -55,11 +55,8 @@ class Optparser
       opts.on("-u", "--unit VALUE", "The unit you want to query. Valid queries are: {watt, kwh, eur, aud}") do |unit|
         options.unit = unit 
       end
-      opts.on("-i", "--sensor-id VALUE", "The sensor ID you want to query.") do |sensor_id|
-        options.sensor_id = sensor_id
-      end
-      opts.on("-a", "--access-token VALUE", "Your access token.") do |access_token|
-        options.access_token = access_token
+      opts.on("-c", "--config FILE", "The file where the configuration lives.") do |file|
+        options.config_file = file
       end
       # Boolean switch.
       opts.on("-v", "--verbose", "Run verbosely") do |v|
@@ -110,16 +107,30 @@ else begin
   exit(-2);
 end
 end
-sensor_id=options.sensor_id
-access_token=options.access_token
+if options.config_file == nil
+  puts "Please provide a configuration file... (-h for details)."
+  exit(-1);
+end
+if not File.exists?(options.config_file) 
+  puts " Configuration file #{options.config_file} not found - exiting."
+  exit(-3);
+else
+  $CONFIG=YAML.load_file(options.config_file);
+  puts "Using this configuration:" if $verbose
+  puts "#{$CONFIG}" if $verbose
+end
 
+sensor_id = $CONFIG['SENSOR_ID']
+access_token = $CONFIG['ACCESS_TOKEN']
+BASE_URL=$CONFIG['BASE_URL']
 auth=Flukso::TokenAuth.new(access_token);
-api=Flukso::API.new(auth);
+api=Flukso::API.new(auth, BASE_URL);
 query=Flukso::QueryReadings.new(sensor_id, range, unit)
 begin
   readings=query.execute(api);
 rescue Exception => e
   puts "Query failed: #{e}"
+  puts "Used #{BASE_URL} as BASE_URL"
   exit(-10);
 end
 

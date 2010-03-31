@@ -44,7 +44,7 @@ module Flukso
   class InformFlukso < StandardError; end
   class NotFound < StandardError; end
   # Use only the encrypted endpoint.
-  BASE_SENSOR_URL = "https://api.flukso.net/sensor"
+  #BASE_SENSOR_URL = "https://api.flukso.net/sensor"
   API_VERSION="1.0"
 end
  

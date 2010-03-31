@@ -27,10 +27,10 @@ module Flukso
 
     attr_reader :options
 
-    def initialize(access_token)
+    def initialize(access_token)#, base_url)
       @access_token = access_token
       #@options = {:ssl => true}.merge(options)
-      self.class.base_uri "#{Flukso::BASE_SENSOR_URL}"
+      #self.class.base_uri "#{base_url}"
     end
 
     

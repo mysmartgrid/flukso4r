@@ -36,7 +36,8 @@ module Flukso
       if api.class != Flukso::API
         raise  Flukso::General, "Cannot execute query: API object invalid"
       end
-      query_url="#{Flukso::BASE_SENSOR_URL}/#{@sensor_id}?interval=#{@timerange}&unit=#{@unit}";
+      query_url="/#{@sensor_id}?interval=#{@timerange}&unit=#{@unit}";
+      #query_url="#{Flukso::BASE_SENSOR_URL}/#{@sensor_id}?interval=#{@timerange}&unit=#{@unit}";
       puts "Using query url #{query_url}" if $verbose
       response = api.perform_get(query_url) 
       return wrap_response(response);
@@ -59,24 +60,25 @@ module Flukso
 
     attr_reader :client
 
-    def initialize(client)
+    def initialize(client, base_url)
       @client = client
+      @base_url = base_url
     end
     
     def perform_get(path, options={})
-      Flukso::Request.get(self, path, options )
+      Flukso::Request.get(self, @base_url+path, options )
     end
 
     def perform_post(path, options={})
-      Flukso::Request.post(self, path, add_version_header(options))
+      Flukso::Request.post(self, @base_url+path, add_version_header(options))
     end
 
     def perform_put(path, options={})
-      Flukso::Request.put(self, path, add_version_header(options))
+      Flukso::Request.put(self, @base_url+path, add_version_header(options))
     end
 
     def perform_delete(path, options={})
-      Flukso::Request.delete(self, path, add_version_header(options))
+      Flukso::Request.delete(self, @base_url+path, add_version_header(options))
     end
 
   end
