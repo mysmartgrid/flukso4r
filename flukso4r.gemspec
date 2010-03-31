@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{flukso4r}
-  s.version = "0.3.3"
+  s.version = "0.3.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mathias Dalheimer"]
-  s.date = %q{2010-03-28}
+  s.date = %q{2010-03-31}
   s.default_executable = %q{flukso_query}
   s.description = %q{This gem provides a library for the Flukso API. See http://flukso.net for more information.}
   s.email = %q{md@gonium.net}
