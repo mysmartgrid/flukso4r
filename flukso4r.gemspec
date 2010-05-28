@@ -5,15 +5,15 @@
 
 Gem::Specification.new do |s|
   s.name = %q{flukso4r}
-  s.version = "0.3.4"
+  s.version = "0.3.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mathias Dalheimer"]
-  s.date = %q{2010-03-31}
+  s.date = %q{2010-05-28}
   s.default_executable = %q{flukso_query}
   s.description = %q{This gem provides a library for the Flukso API. See http://flukso.net for more information.}
   s.email = %q{md@gonium.net}
-  s.executables = ["flukso_query", "flukso_archive_watts", "flukso_create_db"]
+  s.executables = ["flukso_export_db", "flukso_query", "flukso_archive_watts", "flukso_create_db"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.rdoc"
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
      "bin/flukso_create_db",
      "bin/flukso_export_db",
      "bin/flukso_query",
+     "etc/flukso4rrc",
      "lib/flukso.rb",
      "lib/flukso/api.rb",
      "lib/flukso/database.rb",

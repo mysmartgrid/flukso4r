@@ -16,8 +16,8 @@ archive your Flukso readings at the highest resolution. The values are
 stored in an sqlite3 database.
 
 == Installation
-
-For most cases installation can be done using gems:
+Please install SQLite3 first, as the gem uses an embedded database for
+storing the readings.  For most cases installation can be done using gems:
 
 $ gem install flukso4r
 
