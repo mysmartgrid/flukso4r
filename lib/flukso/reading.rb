@@ -35,6 +35,9 @@ module Flukso
         @value = value
       end
     end
+    def nan?
+      return (value*1.0).nan?
+    end
     def to_s
       return "#{@utc_timestamp} -> #{@value}"
     end
