@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.default_executable = %q{flukso_query}
   s.description = %q{This gem provides a library for the Flukso API. See http://flukso.net for more information.}
   s.email = %q{md@gonium.net}
-  s.executables = ["bin/flukso_archive_watts", "bin/flukso_create_db", "bin/flukso_export_db", "bin/flukso_plot", "bin/flukso_query"]
+  s.executables = ["flukso_archive_watts", "flukso_create_db", "flukso_export_db", "flukso_query"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.rdoc"
@@ -23,11 +23,6 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
-     "bin/flukso_archive_watts",
-     "bin/flukso_create_db",
-     "bin/flukso_export_db",
-     "bin/flukso_plot",
-     "bin/flukso_query",
      "etc/flukso4rrc",
      "lib/flukso.rb",
      "lib/flukso/api.rb",

@@ -11,9 +11,10 @@ begin
     gem.homepage = "http://gonium.net/md/flukso4r"
     gem.authors = ["Mathias Dalheimer"]
     gem.bindir = 'bin'
-    gem.executables = FileList["bin/**/*"]
+    gem.executables = ["flukso_archive_watts", "flukso_create_db", 
+      "flukso_export_db", "flukso_query"]
     gem.default_executable = 'flukso_query'
-    gem.files = FileList["[A-Z]*", "{bin,lib,etc,test}/**/*"]
+    gem.files = FileList["[A-Z]*", "{lib,etc,test}/**/*"]
      
     #gem.add_dependency('oauth', '~> 0.3.6')
     gem.add_dependency('httparty', '~> 0.4.3')
