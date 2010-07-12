@@ -187,6 +187,6 @@ SQL
     end
   end
 
-      class ElementNotFoundError < RuntimeError
-      end
-    end
+  class ElementNotFoundError < RuntimeError
+  end
+end

@@ -41,6 +41,18 @@ module Flukso
     def to_s
       return "#{@utc_timestamp} -> #{@value}"
     end
+    def time
+      return Time.at(@utc_timestamp);
+    end
+    def dayOfWeek
+      currenttime=Time.at(@utc_timestamp);
+      return currenttime.strftime("%a");
+    end
+    def period
+      currenttime=Time.at(@utc_timestamp);
+      period=(currenttime.hour * 4) + (currenttime.min / 15);
+      return period
+    end
   end
 
 end
