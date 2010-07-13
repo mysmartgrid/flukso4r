@@ -49,10 +49,13 @@ class Optparser
     opts.on("-c", "--config FILE", "The configuration file to use.") do |file|
       options.config_file = file 
     end
-    opts.on("-s", "--starttime UTC_TIMESTAMP", "Timestamp of the first reading to export.") do |starttime|
+    opts.on("-o", "--output FILE", "The filename for the resulting PDF file.") do |file|
+      options.output_file = file 
+    end
+    opts.on("-s", "--starttime UTC_TIMESTAMP", "Timestamp of the first reading to plot.") do |starttime|
       options.starttime=starttime 
     end
-    opts.on("-e", "--endtime UTC_TIMESTAMP", "Timestamp of the last reading to export.") do |endtime|
+    opts.on("-e", "--endtime UTC_TIMESTAMP", "Timestamp of the last reading to plot.") do |endtime|
       options.endtime=endtime 
     end
 
@@ -103,6 +106,14 @@ if not File.exists?(dbfile)
   puts " Database does not exists. Aborting."
   exit(-2);
 end
+if options.output_file == nil
+  puts " Please provide an output file (-h for details)."
+  exit(-4)
+end
+if File.exists?(options.output_file) and not $force
+  puts " Output file #{options.output_file} already exists. Aborting."
+  exit(-5);
+end
 
 # TODO: Rewrite this, it should reflect a pipe pattern...
 
@@ -128,21 +139,29 @@ end
 # gemalt.
 plots=Array.new();
 daily_scatter=Flukso::ScatterPlotDaily.new("scattered dailies");
+day_overview=Flukso::DailyLine.new("on 17.03.2010", 17, 3, 2010);
 # Todo: Add other plots. Parse cmd line.
-plots << daily_scatter;
+plots << daily_scatter 
+plots << day_overview;
+
 
 # Now: Add data to the plots.
+puts " Collecting values. This can take a while."
 db=Flukso::FluksoDB.open($CONFIG["DB_FILE"], $CONFIG["DB_TABLE_NAME"]);
 begin
   if select_starttime != nil
     # We need to select the values in the specified timeframe.
     db.each_reading_between(select_starttime, select_endtime) {|reading|
-      daily_scatter.addReading(reading);
+      plots.each{|plot|
+        plot.addReading(reading);
+      }
     }
   else
     # No selection was given. Iterate over all values in the DB.
     db.each_reading{|reading|
-      daily_scatter.addReading(reading);
+      plots.each{|plot|
+        plot.addReading(reading);
+      }
     }
   end
 rescue Flukso::ElementNotFoundError => e
@@ -150,5 +169,6 @@ rescue Flukso::ElementNotFoundError => e
 end
 db.close
 
+puts " Running R to generate analysis."
 runner=Flukso::RRunner.new(".");
-runner.execute("foobar.pdf", plots);
+runner.execute(options.output_file, plots);

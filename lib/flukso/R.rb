@@ -73,7 +73,7 @@ module Flukso
       cmdString=""
       commands.each{|command|
         cmdString << command.cmd();
-        cmdString << "# command separator"
+        cmdString << "# command separator\n"
       }
       executeCommandString(outfilename, cmdString);
     end

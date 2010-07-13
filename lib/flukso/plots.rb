@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with CGWG; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+def generateRandomString()
+    chars = ("a".."z").to_a + ("1".."9").to_a 
+    return Array.new(16, '').collect{chars[rand(chars.size)]}.join
+  end
 
 module Flukso
   # a simple scatterplot
@@ -21,13 +25,14 @@ module Flukso
     def initialize(annotation)
       @annotation=annotation;
       @readings=Array.new()
+      @dataset_id="data"+generateRandomString();
     end
     def addReading(reading);
       @readings << reading
     end
     def create_dataframe_cmd()
       cmd_create_dataframe= <<-END_OF_CMD
-        dataset <- data.frame( 
+        #{@dataset_id} <- data.frame( 
           date=character(), 
           dayofweek=character(), 
           period=numeric(), 
@@ -39,8 +44,8 @@ module Flukso
         currenttime=Time.at(reading.utc_timestamp);
         cmd_compose_data= <<-END_OF_CMD
           newline<-data.frame(#{reading.utc_timestamp}, "#{reading.dayOfWeek}", #{reading.period}, #{reading.value}); 
-          colnames(newline)<- colnames(dataset);
-          dataset <- rbind(dataset, newline);
+          colnames(newline)<- colnames(#{@dataset_id});
+          #{@dataset_id} <- rbind(#{@dataset_id}, newline);
         END_OF_CMD
         cmd_create_dataframe << cmd_compose_data;
       }
@@ -51,17 +56,78 @@ module Flukso
       cmd= <<-END_OF_CMD
         # plot commmands. 
         library(lattice);
-        y_max=max(dataset$value);
+        y_max=max(#{@dataset_id}$value);
         title<-paste("Daily Power Consumption", "#{@annotation}");
-        data_points<-paste("Number of data points:",nrow(dataset));
+        data_points<-paste("Number of data points:",nrow(#{@dataset_id}));
         cat("Plotting scatterplot:", title, data_points, "\n");
-        xyplot(dataset$value ~ dataset$period, main=title, 
+        xyplot(#{@dataset_id}$value ~ #{@dataset_id}$period, main=title, 
           ylab="Power Usage [W]", xlab="Time Period [15min Intervals]", 
           sub=data_points, ylim=c(0,y_max), xlim=c(0,95));
       END_OF_CMD
       return dataframe << cmd
     end
   end
+
+  # Plot a single day as a line.
+  class DailyLine
+    def initialize(annotation, day, month, year)
+      @annotation=annotation;
+      @day=day
+      @month=month
+      @year=year
+      @readings=Array.new()
+      @dataset_id="data"+generateRandomString();
+    end
+    def addReading(reading);
+      # Check wether the reading is on our day.
+      if reading.isOnDay?(@day, @month, @year)
+        @readings << reading
+      #  puts "adding reading." if $verbose
+      #else
+      #  puts "skipping reading (not on desired day)" if $verbose
+      end
+    end
+    def create_dataframe_cmd()
+      cmd_create_dataframe= <<-END_OF_CMD
+        #{@dataset_id} <- data.frame( 
+          date=character(), 
+          dayofweek=character(), 
+          period=numeric(), 
+          value=numeric() 
+        );
+      END_OF_CMD
+      @readings.each{|reading|
+        # calculate some values.
+        currenttime=Time.at(reading.utc_timestamp);
+        cmd_compose_data= <<-END_OF_CMD
+          newline<-data.frame(#{reading.utc_timestamp}, "#{reading.dayOfWeek}", #{reading.period}, #{reading.value}); 
+          colnames(newline)<- colnames(#{@dataset_id});
+          #{@dataset_id} <- rbind(#{@dataset_id}, newline);
+        END_OF_CMD
+        cmd_create_dataframe << cmd_compose_data;
+      }
+      return cmd_create_dataframe
+    end
+    def cmd()
+      if @readings.empty?
+        raise "no values selected - cannot create DailyLine plot for #{@year}-#{@month}-#{@day}"
+      end
+      dataframe=create_dataframe_cmd();
+      cmd= <<-END_OF_CMD
+        # plot commmands. 
+        library(lattice);
+        y_max=max(#{@dataset_id}$value);
+        title<-paste("Daily Power Consumption", "#{@annotation}")
+        data_points<-paste("Number of data points:",nrow(#{@dataset_id}));
+        plot(#{@dataset_id}$value ~ #{@dataset_id}$period, main=title, type="l",
+        ylab="Power Usage [W]", xlab="Time Period [15min Intervals]", 
+        sub=data_points, ylim=c(0,y_max), xlim=c(0,95));
+      END_OF_CMD
+      return dataframe << cmd
+    end
+
+  end
+
   # Simple test plot that plots 100 points.
   class TestPlot
     def cmd()

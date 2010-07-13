@@ -48,6 +48,16 @@ module Flukso
       currenttime=Time.at(@utc_timestamp);
       return currenttime.strftime("%a");
     end
+    def isOnDay?(day,month,year)
+      starttime=Time.mktime(year, month, day, 0, 0);
+      endtime=Time.mktime(year, month, day, 23, 59);
+      event=Time.at(@utc_timestamp);
+      if ((starttime <= event) and (event <= endtime))
+        return true
+      else
+        return false
+      end
+    end
     def period
       currenttime=Time.at(@utc_timestamp);
       period=(currenttime.hour * 4) + (currenttime.min / 15);
