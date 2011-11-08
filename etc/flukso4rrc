@@ -2,5 +2,5 @@ DB_FILE:  "/tmp/demo_database.sqlite3"
 DB_TABLE_NAME: "UTCReadings"
 ACCESS_TOKEN: "3f..."
 SENSOR_ID: "0e...."
-BASE_URL: "https://api.flukso.net/sensor"
+BASE_URL: "https://api.mysmartgrid.de:8443/sensor"
 

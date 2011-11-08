@@ -23,8 +23,9 @@
 require 'forwardable'
 require 'rubygems'
  
-gem 'httparty', '~> 0.4.3'
+gem 'httparty'
 require 'httparty'
+require 'crack'
  
 module Flukso
   class FluksoError < StandardError
