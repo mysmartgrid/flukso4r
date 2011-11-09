@@ -8,12 +8,11 @@ Gem::Specification.new do |s|
   s.version = "0.3.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Mathias Dalheimer"]
+  s.authors = [%q{Mathias Dalheimer}]
   s.date = %q{2011-11-09}
-  s.default_executable = %q{flukso_query}
   s.description = %q{This gem provides a library for the Flukso API. See http://flukso.net for more information.}
   s.email = %q{md@gonium.net}
-  s.executables = ["flukso_archive_watts", "flukso_create_db", "flukso_export_db", "flukso_query"]
+  s.executables = [%q{flukso_archive_watts}, %q{flukso_create_db}, %q{flukso_export_db}, %q{flukso_query}]
   s.extra_rdoc_files = [
     "LICENSE",
     "README.rdoc"
@@ -37,12 +36,11 @@ Gem::Specification.new do |s|
     "test/test_flukso4r.rb"
   ]
   s.homepage = %q{http://gonium.net/md/flukso4r}
-  s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.require_paths = [%q{lib}]
+  s.rubygems_version = %q{1.8.6}
   s.summary = %q{A Ruby Library for the Flukso Webservice}
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
